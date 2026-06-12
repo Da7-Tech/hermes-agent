@@ -6,6 +6,7 @@ import { NotificationStack } from '@/components/notifications'
 import { PaneShell } from '@/components/pane-shell'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { useMediaQuery } from '@/hooks/use-media-query'
+import { localeDirection, useI18n } from '@/i18n'
 import {
   $fileBrowserOpen,
   $panesFlipped,
@@ -89,14 +90,21 @@ export function AppShell({
 
   // The inset clears the top-left titlebar buttons when nothing covers the
   // window's left edge. Default layout: the sessions sidebar sits there.
-  // Flipped layout: the file browser does instead. Both force-collapse to a
-  // hover-reveal overlay (0px track) below the collapse breakpoint, so the edge
-  // is uncovered there regardless of their stored open state. A standalone
-  // session window renders no sidebar at all, so its edge is always uncovered.
-  const collapsibleLeftPaneOpen = panesFlipped ? fileBrowserOpen : sidebarOpen
+  // Flipped layout: the file browser does instead. RTL locales mirror the
+  // pane layout, so which pane reaches the physical left edge flips once
+  // more. Both force-collapse to a hover-reveal overlay (0px track) below
+  // the collapse breakpoint, so the edge is uncovered there regardless of
+  // their stored open state. A standalone session window renders no sidebar
+  // at all, so its edge is always uncovered.
+  const { locale } = useI18n()
+  const rtl = localeDirection(locale) === 'rtl'
+  const startPaneOpen = panesFlipped ? fileBrowserOpen : sidebarOpen
+  const endPaneOpen = panesFlipped ? sidebarOpen : fileBrowserOpen
+  const collapsibleLeftPaneOpen = rtl ? endPaneOpen : startPaneOpen
   // The terminal + preview rails never force-collapse, so when they're the
-  // leftmost open pane (flipped layout) they cover the edge even when narrow.
-  const persistentLeftPaneOpen = panesFlipped && (terminalPaneOpen || previewPaneOpen)
+  // leftmost open pane (flipped layout in LTR, unflipped in RTL) they cover
+  // the edge even when narrow.
+  const persistentLeftPaneOpen = (rtl ? !panesFlipped : panesFlipped) && (terminalPaneOpen || previewPaneOpen)
 
   const leftEdgePaneOpen =
     !isSecondaryWindow() && ((!narrowViewport && collapsibleLeftPaneOpen) || persistentLeftPaneOpen)

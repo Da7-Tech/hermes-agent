@@ -360,7 +360,13 @@ export function Pane({
   // enter-delay is the hover-intent gate. No JS pointer math.
   if (overlayActive) {
     const edge = side === 'left' ? 'left' : 'right'
-    const offscreen = side === 'left' ? '-translate-x-[calc(100%+1rem)]' : 'translate-x-[calc(100%+1rem)]'
+    // `side` is logical (start/end of the pane row), so under RTL the panel
+    // sits on the opposite physical edge and must slide the other way to
+    // leave the viewport.
+    const offscreen =
+      side === 'left'
+        ? '-translate-x-[calc(100%+1rem)] rtl:translate-x-[calc(100%+1rem)]'
+        : 'translate-x-[calc(100%+1rem)] rtl:-translate-x-[calc(100%+1rem)]'
 
     return (
       <div

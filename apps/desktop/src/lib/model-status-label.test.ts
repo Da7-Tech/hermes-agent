@@ -28,6 +28,7 @@ describe('model-status-label', () => {
   })
 
   it('returns just the placeholder name when there is no model', () => {
-    expect(formatModelStatusLabel('')).toBe('No model')
+    // The placeholder now resolves through the i18n catalog (statusbar style).
+    expect(formatModelStatusLabel('')).toBe('no model')
   })
 })

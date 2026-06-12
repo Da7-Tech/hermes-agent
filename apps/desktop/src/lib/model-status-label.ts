@@ -1,11 +1,8 @@
-const REASONING_LABELS: Record<string, string> = {
-  none: 'Off',
-  minimal: 'Min',
-  low: 'Low',
-  medium: 'Med',
-  high: 'High',
-  xhigh: 'Max'
-}
+import { translateNow } from '@/i18n'
+
+// Known effort keys; translateNow resolves the active locale's badge and
+// falls back to the English catalog for locales without reasoningShort.
+const REASONING_KEYS = new Set(['none', 'minimal', 'low', 'medium', 'high', 'xhigh'])
 
 export function reasoningEffortLabel(effort: string): string {
   const key = effort.trim().toLowerCase()
@@ -14,7 +11,7 @@ export function reasoningEffortLabel(effort: string): string {
     return ''
   }
 
-  return REASONING_LABELS[key] ?? effort
+  return REASONING_KEYS.has(key) ? translateNow(`shell.statusbar.reasoningShort.${key}`) : effort
 }
 
 /** Strip provider prefix and normalize for display. */
@@ -68,7 +65,7 @@ export function modelDisplayParts(model: string): { name: string; tag: string } 
     }
   }
 
-  return { name: prettifyBase(base) || model.trim() || 'No model', tag }
+  return { name: prettifyBase(base) || model.trim() || translateNow('shell.statusbar.noModel'), tag }
 }
 
 /** Friendly one-line model name for menus and the status bar. */
